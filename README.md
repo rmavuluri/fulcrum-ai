@@ -5,7 +5,7 @@ A modern AI chatbot interface built with React, Vite, shadcn/ui, and MCP (Model 
 ## Features
 
 - 🎨 **Modern UI**: Built with shadcn/ui components and Tailwind CSS
-- 🔐 **Authentication**: OAuth/JWT authentication support
+- 🔐 **Authentication**: Auth0 (OAuth 2.0 / OIDC) with JWT validation on backend
 - 🔌 **MCP Integration**: Connect to MCP servers for tools, resources, and prompts
 - 💬 **Chat Interface**: Clean, dark-themed chat UI matching the design
 - ⚡ **Fast Development**: Powered by Vite for instant HMR
@@ -46,16 +46,18 @@ cp .env.example .env
 ```
 
 4. Configure your environment variables in `.env`:
-   - Set up OAuth client IDs for Google/GitHub
-   - Configure API URL
-   - Set up MCP server command and arguments
+   - **Auth0**: `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`, `VITE_AUTH0_AUDIENCE` (see [Auth0 setup](https://github.com/auth0/auth0-react#auth0provider) and backend README).
+   - **Backend**: `VITE_API_URL=http://localhost:3001` (fulcrum-ai-backend).
+   - MCP and other optional vars as needed.
 
-5. Start the development server:
+5. Start the backend (in `fulcrum-ai-backend`): `npm run dev`.
+
+6. Start the development server:
 ```bash
 npm run dev
 ```
 
-6. Open [http://localhost:5173](http://localhost:5173) in your browser
+7. Open [http://localhost:5173](http://localhost:5173) in your browser. Use "Sign in with Auth0" to log in.
 
 ## Project Structure
 
