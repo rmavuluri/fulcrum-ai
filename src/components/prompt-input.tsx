@@ -12,16 +12,22 @@ import {
 import { cn } from "@/lib/utils";
 import { useMCP } from "@/hooks/use-mcp";
 
+// Matches backend CLAUDE_MODEL (Python Anthropic). Default is the one used by /api/chat.
 const MODEL_OPTIONS = [
-  { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite" },
-  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-  { value: "gpt-4", label: "GPT-4" },
-  { value: "claude-3", label: "Claude 3" },
+  { value: "claude-sonnet-4-5", label: "Claude Sonnet 4.5" },
+  { value: "claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet" },
+  { value: "claude-3-opus-20240229", label: "Claude 3 Opus" },
+  { value: "claude-3-haiku-20240307", label: "Claude 3 Haiku" },
 ] as const;
 
-export function PromptInput() {
+type PromptInputProps = {
+  onSendMessage?: (message: string) => Promise<void>;
+  loading?: boolean;
+};
+
+export function PromptInput({ onSendMessage, loading = false }: PromptInputProps) {
   const [input, setInput] = useState("");
-  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash-lite");
+  const [selectedModel, setSelectedModel] = useState("claude-sonnet-4-5");
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { callTool, isConnected } = useMCP();
@@ -65,9 +71,10 @@ export function PromptInput() {
             console.error("Tool call failed:", error);
           }
         }
+      } else if (onSendMessage) {
+        await onSendMessage(message);
       } else {
         console.log("Sending message:", message);
-        console.log("Selected model:", selectedModel);
         if (attachedFiles.length) {
           console.log("Attached files:", attachedFiles.map((f) => f.name));
         }
@@ -78,7 +85,7 @@ export function PromptInput() {
   };
 
   const currentModelLabel =
-    MODEL_OPTIONS.find((m) => m.value === selectedModel)?.label ?? "Gemini 2.5 Flash Lite";
+    MODEL_OPTIONS.find((m) => m.value === selectedModel)?.label ?? "Claude Sonnet 4.5";
 
   return (
     <div className="w-full">
@@ -139,7 +146,7 @@ export function PromptInput() {
           </Select>
           <Button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || loading}
             size="icon"
             className="ml-auto h-9 w-9 shrink-0 rounded-full bg-zinc-600 text-zinc-200 hover:bg-zinc-500 disabled:opacity-50"
             type="button"

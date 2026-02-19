@@ -1,18 +1,37 @@
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Plus, Trash2, LogOut, User } from "lucide-react";
+import { Plus, Trash2, LogOut, User, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuthStore } from "@/lib/auth";
+import { useChatStore } from "@/lib/chat-store";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
+  const navigate = useNavigate();
+  const { id: currentChatId } = useParams<{ id: string }>();
   const { user: auth0User, logout: auth0Logout } = useAuth0();
   const { user: storeUser, logout } = useAuthStore();
+  const { deleteAllChats } = useChatStore();
+  const chatsRaw = useChatStore((s) => s.chats);
+  const chats = useMemo(
+    () => [...chatsRaw].sort((a, b) => b.updatedAt - a.updatedAt),
+    [chatsRaw]
+  );
 
   const handleLogout = () => {
     logout();
     auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+  };
+
+  const handleNewChat = () => {
+    navigate("/chat/new");
+  };
+
+  const handleDeleteAllChats = () => {
+    deleteAllChats();
+    navigate("/");
   };
 
   const displayName = auth0User?.name ?? storeUser?.name ?? storeUser?.email ?? "User";
@@ -33,7 +52,14 @@ export function AppSidebar() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" type="button">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    type="button"
+                    onClick={handleDeleteAllChats}
+                    aria-label="Delete all chats"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -43,7 +69,14 @@ export function AppSidebar() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" type="button">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    type="button"
+                    onClick={handleNewChat}
+                    aria-label="New chat"
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -52,9 +85,29 @@ export function AppSidebar() {
             </TooltipProvider>
           </div>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Your conversations will appear here once you start chatting!
-        </p>
+        <div className="mt-3 flex flex-1 flex-col gap-1 overflow-y-auto">
+          {chats.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Your conversations will appear here. Start by clicking New Chat or sending a message.
+            </p>
+          ) : (
+            chats.map((chat) => (
+              <Link
+                key={chat.id}
+                to={`/chat/${chat.id}`}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                  currentChatId === chat.id
+                    ? "bg-zinc-700 text-foreground"
+                    : "text-muted-foreground hover:bg-zinc-800 hover:text-foreground"
+                )}
+              >
+                <MessageSquare className="h-4 w-4 shrink-0" />
+                <span className="min-w-0 truncate">{chat.title}</span>
+              </Link>
+            ))
+          )}
+        </div>
       </div>
 
       <div className="border-t border-border p-3">

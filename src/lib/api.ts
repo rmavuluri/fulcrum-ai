@@ -28,3 +28,20 @@ export async function fetchMe(): Promise<{ user: { id: string; email: string; na
   if (!res.ok) throw new Error("Unauthorized");
   return res.json();
 }
+
+/**
+ * Send a chat message to the backend (document-aware Claude). Requires valid JWT.
+ * Returns the assistant response text, or throws on error.
+ */
+export async function sendChatMessage(message: string): Promise<string> {
+  const res = await fetch(`${getBaseUrl()}/api/chat`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ message }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error ?? `Request failed: ${res.status}`);
+  }
+  return (data as { response?: string }).response ?? "";
+}
