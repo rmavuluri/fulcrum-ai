@@ -1,22 +1,24 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Auth0Provider } from "@auth0/auth0-react";
+// Auth0 disabled: load chat screen directly without authentication
+// import { Auth0Provider } from "@auth0/auth0-react";
 import "./index.css";
 import App from "./App.tsx";
 
-const domain = import.meta.env.VITE_AUTH0_DOMAIN?.trim() ?? "";
-const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID?.trim() ?? "";
-const audience = import.meta.env.VITE_AUTH0_AUDIENCE?.trim() ?? "";
+// const domain = import.meta.env.VITE_AUTH0_DOMAIN?.trim() ?? "";
+// const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID?.trim() ?? "";
+// const audience = import.meta.env.VITE_AUTH0_AUDIENCE?.trim() ?? "";
 
-if (!domain || !clientId) {
-  console.warn(
-    "Auth0 not configured: set VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID in .env and restart the dev server"
-  );
-}
+// if (!domain || !clientId) {
+//   console.warn(
+//     "Auth0 not configured: set VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID in .env and restart the dev server"
+//   );
+// }
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Auth0Provider
+    {/* Auth0 disabled: render App without Auth0Provider so chat loads directly */}
+    {/* <Auth0Provider
       domain={domain ?? ""}
       clientId={clientId ?? ""}
       authorizationParams={{
@@ -25,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
       }}
     >
       <App />
-    </Auth0Provider>
+    </Auth0Provider> */}
+    <App />
   </StrictMode>
 );

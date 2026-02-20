@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+// Auth0 disabled: use store user only
+// import { useAuth0 } from "@auth0/auth0-react";
 import { Plus, Trash2, LogOut, User, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,7 +12,7 @@ import { cn } from "@/lib/utils";
 export function AppSidebar() {
   const navigate = useNavigate();
   const { id: currentChatId } = useParams<{ id: string }>();
-  const { user: auth0User, logout: auth0Logout } = useAuth0();
+  // const { user: auth0User, logout: auth0Logout } = useAuth0();
   const { user: storeUser, logout } = useAuthStore();
   const { deleteAllChats } = useChatStore();
   const chatsRaw = useChatStore((s) => s.chats);
@@ -22,7 +23,8 @@ export function AppSidebar() {
 
   const handleLogout = () => {
     logout();
-    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+    // Auth0 disabled: no Auth0 logout
+    // auth0Logout({ logoutParams: { returnTo: window.location.origin } });
   };
 
   const handleNewChat = () => {
@@ -34,9 +36,10 @@ export function AppSidebar() {
     navigate("/");
   };
 
-  const displayName = auth0User?.name ?? storeUser?.name ?? storeUser?.email ?? "User";
-  const displayEmail = auth0User?.email ?? storeUser?.email ?? null;
-  const avatarUrl = auth0User?.picture ?? null;
+  // Auth0 disabled: use store user only
+  const displayName = storeUser?.name ?? storeUser?.email ?? "User";
+  const displayEmail = storeUser?.email ?? null;
+  const avatarUrl = null; // auth0User?.picture ?? null;
 
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-zinc-900/80">
