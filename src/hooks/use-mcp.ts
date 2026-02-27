@@ -2,11 +2,11 @@ import { useState } from "react";
 import { mcpClient, type MCPTool, type MCPResource, type MCPPrompt } from "@/lib/mcp-client";
 
 export function useMCP() {
-  const [tools, setTools] = useState<MCPTool[]>([]);
-  const [resources, setResources] = useState<MCPResource[]>([]);
-  const [prompts, setPrompts] = useState<MCPPrompt[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [tools, _setTools] = useState<MCPTool[]>([]);
+  const [resources, _setResources] = useState<MCPResource[]>([]);
+  const [prompts, _setPrompts] = useState<MCPPrompt[]>([]);
+  const [isConnected, _setIsConnected] = useState(false);
+  const [error, _setError] = useState<string | null>(null);
 
   // MCP auto-connect disabled until backend exposes /api/mcp/* routes.
   // To enable later: uncomment the useEffect and implement MCP proxy in fulcrum-ai-backend.

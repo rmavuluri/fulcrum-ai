@@ -47,12 +47,6 @@ function generateId(): string {
   return `chat-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function firstLineOrSlice(text: string, maxLen: number): string {
-  const line = text.split("\n")[0].trim();
-  if (line.length <= maxLen) return line || "New chat";
-  return line.slice(0, maxLen).trim() + "…";
-}
-
 export const useChatStore = create<ChatState>((set, get) => ({
   chats: loadChats(),
 
