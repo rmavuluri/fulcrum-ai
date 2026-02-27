@@ -1,49 +1,37 @@
 import { useEffect } from "react";
-// import { useAuth0 } from "@auth0/auth0-react";
 import { useAuthStore } from "@/lib/auth";
+import { fetchSandboxToken } from "@/lib/api";
 
 /**
- * Syncs Auth0 state (user + access token) into the app auth store.
- * Auth0 disabled: set a guest user so sidebar and app work without Auth0.
+ * On load: get sandbox token from fulcrum-ai-backend and store it.
+ * All API calls (chat, documents) then use this token in Authorization header.
  */
 export function AuthSync() {
-  // const { isAuthenticated, user, getAccessTokenSilently } = useAuth0();
   const login = useAuthStore((s) => s.login);
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
-    // Auth0 disabled: set guest user so chat loads directly
-    const existingToken = localStorage.getItem("auth_token");
-    if (!existingToken) {
-      login("guest-token", {
-        id: "guest",
-        email: "guest@local",
-        name: "Guest",
-      });
-    }
+    let cancelled = false;
 
-    // Original Auth0 sync (commented):
-    // if (!isAuthenticated || !user) {
-    //   ranForUser.current = null;
-    //   logout();
-    //   return;
-    // }
-    // const userKey = user.sub ?? "";
-    // if (ranForUser.current === userKey) return;
-    // ranForUser.current = userKey;
-    // let cancelled = false;
-    // getAccessTokenSilently()
-    //   .then((token) => {
-    //     if (cancelled) return;
-    //     login(token, { id: user.sub ?? "", email: user.email ?? "", name: user.name ?? undefined });
-    //   })
-    //   .catch((err) => {
-    //     if (cancelled) return;
-    //     ranForUser.current = null;
-    //     console.error("[AuthSync] getAccessTokenSilently failed:", err);
-    //     logout();
-    //   });
-    // return () => { cancelled = true; };
-  }, [login]);
+    fetchSandboxToken()
+      .then((token) => {
+        if (cancelled) return;
+        login(token, {
+          id: "sandbox",
+          email: "",
+          name: "Sandbox",
+        });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("[AuthSync] fetchSandboxToken failed:", err);
+        logout();
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [login, logout]);
 
   return null;
 }

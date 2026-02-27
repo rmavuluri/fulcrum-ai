@@ -4,7 +4,7 @@ const getBaseUrl = () =>
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") ?? "";
 
 /**
- * Returns headers including Authorization Bearer token when user is authenticated.
+ * Returns headers including Authorization Bearer token (sandbox token) when set.
  * Use for all requests to fulcrum-ai-backend.
  */
 export function getAuthHeaders(): HeadersInit {
@@ -19,18 +19,22 @@ export function getAuthHeaders(): HeadersInit {
 }
 
 /**
- * Fetch current user from backend (requires valid JWT).
+ * Get a sandbox bearer token from the backend. Call this first; then use the stored token for /api/chat and other endpoints.
+ * Stores the token in the auth store (via login). Returns the token.
  */
-export async function fetchMe(): Promise<{ user: { id: string; email: string; name?: string } }> {
-  const res = await fetch(`${getBaseUrl()}/api/auth/me`, {
-    headers: getAuthHeaders(),
-  });
-  if (!res.ok) throw new Error("Unauthorized");
-  return res.json();
+export async function fetchSandboxToken(): Promise<string> {
+  const res = await fetch(`${getBaseUrl()}/api/sandbox-token`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error((data as { error?: string }).error ?? `Failed to get sandbox token: ${res.status}`);
+  }
+  const token = (data as { access_token?: string }).access_token;
+  if (!token) throw new Error("No access_token in sandbox-token response");
+  return token;
 }
 
 /**
- * Send a chat message to the backend (document-aware Claude). Requires valid JWT.
+ * Send a chat message to the backend. Uses sandbox token in Authorization header (get it via fetchSandboxToken first).
  * Returns the assistant response text, or throws on error.
  */
 export async function sendChatMessage(message: string): Promise<string> {
